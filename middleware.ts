@@ -38,12 +38,12 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  const publicRoutes = ['/login', '/signup']
+  const publicRoutes = ['/connexion', '/inscription']
   const isPublicRoute = publicRoutes.includes(pathname)
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone()
-    url.pathname = '/login'
+    url.pathname = '/connexion'
     return NextResponse.redirect(url)
   }
 
