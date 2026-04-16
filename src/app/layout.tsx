@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
+import AppShell from "@/components/layout/AppShell";
 
 export const metadata: Metadata = {
-  title: "Solimouv'",
+  title: "Solimouv",
   description: "Festival du sport pour tous",
   manifest: "/manifest.json",
 };
@@ -14,8 +14,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <Navbar />
-        {children}
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );
