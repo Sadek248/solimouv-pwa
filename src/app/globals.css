@@ -1,0 +1,21 @@
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary: #1d4ed8;
+  --secondary: #f59e0b;
+  --muted: #f3f4f6;
+  --border: #e5e7eb;
+}
+
+@import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: white;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+}
