@@ -15,8 +15,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
             {
                 success: true,
-                message: "Message reçu avec succès.",
-                data: { name, email, message },
+                message: "Message reçu",
             },
             { status: 201 }
         );
