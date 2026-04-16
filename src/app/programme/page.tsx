@@ -1,7 +1,21 @@
 import ProgrammeCard from "@/components/sections/ProgrammeCard";
-import { programme } from "@/data/programme";
+import type { ProgrammeItem } from "@/data/programme";
 
-export default function ProgrammePage() {
+async function getProgramme(): Promise<ProgrammeItem[]> {
+    const res = await fetch("http://localhost:3000/api/programme", {
+        cache: "no-store",
+    });
+
+    if (!res.ok) {
+        throw new Error("Impossible de récupérer le programme.");
+    }
+
+    return res.json();
+}
+
+export default async function ProgrammePage() {
+    const programme = await getProgramme();
+
     return (
         <main className="mx-auto max-w-6xl px-4 py-12">
             <section>
@@ -9,8 +23,6 @@ export default function ProgrammePage() {
 
                 <p className="mt-4 max-w-3xl text-lg text-gray-700">
                     Découvrez les ateliers, initiations et temps forts du festival Solimouv’.
-                    Cette programmation est pensée pour favoriser la découverte sportive,
-                    l’inclusion et la rencontre entre les publics.
                 </p>
             </section>
 
