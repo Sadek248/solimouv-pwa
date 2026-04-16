@@ -3,9 +3,9 @@ import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 
 export const metadata: Metadata = {
-  title: "Solimouv' - Festival du sport pour tous",
-  description:
-    "PWA de communication pour faire connaître le festival Solimouv' et l'association Up Sport!.",
+  title: "Solimouv'",
+  description: "Festival du sport pour tous",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
