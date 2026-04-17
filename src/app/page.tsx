@@ -1,4 +1,8 @@
+"use client";
+
 import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import {
   User,
   Sparkles,
@@ -11,6 +15,32 @@ import {
 const BRAND_ORANGE = "#F56D4E";
 
 export default function LandingPage() {
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (event: any) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt();
+      return;
+    }
+
+    alert(
+      "Pour installer l’application, utilisez le menu du navigateur puis “Ajouter à l’écran d’accueil”."
+    );
+  };
+
   return (
     <main className="overflow-x-hidden bg-white text-black scroll-smooth">
       {/* Header / Nav */}
@@ -27,13 +57,13 @@ export default function LandingPage() {
             />
           </div>
 
-          <a
-            href="#cta"
+          <Link
+            href="/connexion"
             className="rounded-full px-5 py-2 text-sm font-bold text-white transition-transform hover:scale-105 active:scale-95"
             style={{ backgroundColor: BRAND_ORANGE }}
           >
-            Participer
-          </a>
+            Se connecter
+          </Link>
         </div>
       </nav>
 
@@ -58,13 +88,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href="#features"
-              className="w-full rounded-3xl px-8 py-4 text-lg font-bold text-white transition-all hover:-translate-y-1 hover:shadow-lg sm:w-auto"
+            <Link
+              href="/inscription"
+              className="w-full rounded-3xl px-8 py-4 text-center text-lg font-bold text-white transition-all hover:-translate-y-1 hover:shadow-lg sm:w-auto"
               style={{ backgroundColor: BRAND_ORANGE }}
             >
-              Trouver mon sport idéal
-            </a>
+              S&apos;inscrire
+            </Link>
 
             <div className="flex items-center gap-2 text-sm font-semibold text-gray-500">
               <div className="flex -space-x-2">
@@ -220,7 +250,10 @@ export default function LandingPage() {
             <h2 className="mb-4 text-3xl font-extrabold">
               Ce que disent nos participants
             </h2>
-            <div className="flex justify-center gap-1" style={{ color: BRAND_ORANGE }}>
+            <div
+              className="flex justify-center gap-1"
+              style={{ color: BRAND_ORANGE }}
+            >
               <Star className="h-5 w-5 fill-current" />
               <Star className="h-5 w-5 fill-current" />
               <Star className="h-5 w-5 fill-current" />
@@ -350,23 +383,35 @@ export default function LandingPage() {
           </h2>
 
           <div className="relative z-10 flex flex-col items-center gap-6">
-            <button
+            <Link
+              href="/inscription"
               className="rounded-full px-10 py-5 text-xl font-bold text-white shadow-xl transition-transform hover:scale-105 active:scale-95"
               style={{ backgroundColor: BRAND_ORANGE }}
             >
-              Lancer mon matching sportif
-            </button>
+              S&apos;inscrire
+            </Link>
 
             <div className="flex gap-4">
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold">
-                <Smartphone className="h-4 w-4" style={{ color: BRAND_ORANGE }} />
+              <button
+                type="button"
+                onClick={handleInstall}
+                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold transition hover:bg-white/20"
+              >
+                <Smartphone
+                  className="h-4 w-4"
+                  style={{ color: BRAND_ORANGE }}
+                />
                 iOS App
-              </div>
+              </button>
 
-              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold">
+              <button
+                type="button"
+                onClick={handleInstall}
+                className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-bold transition hover:bg-white/20"
+              >
                 <Play className="h-4 w-4" style={{ color: BRAND_ORANGE }} />
                 Android
-              </div>
+              </button>
             </div>
           </div>
         </div>

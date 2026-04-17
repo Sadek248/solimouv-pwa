@@ -1,7 +1,53 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState, type FormEvent } from "react";
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState("");
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFeedback("");
+
+    if (!email.trim() || !message.trim()) {
+      setFeedback("Veuillez remplir tous les champs.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          message: message.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Échec de l'envoi.");
+      }
+
+      setFeedback("Message envoyé avec succès.");
+      setEmail("");
+      setMessage("");
+    } catch (error) {
+      console.error(error);
+      setFeedback("Une erreur est survenue pendant l'envoi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="border-t border-black/10 bg-[#F7F6F5] text-black">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 py-10 sm:px-8 md:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:px-16">
@@ -31,14 +77,20 @@ export default function Footer() {
             Contact
           </h3>
 
-          <form className="grid gap-4 rounded-[28px] border border-black/10 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:p-6">
+          <form
+            onSubmit={handleSubmit}
+            className="grid gap-4 rounded-[28px] border border-black/10 bg-white p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)] sm:p-6"
+          >
             <div className="grid gap-2">
               <label htmlFor="footer-email" className="text-sm font-semibold text-black">
                 Email
               </label>
               <input
                 id="footer-email"
+                name="email"
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="exemple@email.com"
                 className="h-12 rounded-2xl border border-black/10 bg-[#F7F6F5] px-4 text-sm text-black outline-none transition placeholder:text-black/35 focus:border-[#5C2C4F] focus:bg-white"
               />
@@ -50,17 +102,27 @@ export default function Footer() {
               </label>
               <textarea
                 id="footer-message"
+                name="message"
                 rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
                 placeholder="Votre message"
                 className="resize-none rounded-2xl border border-black/10 bg-[#F7F6F5] px-4 py-3 text-sm text-black outline-none transition placeholder:text-black/35 focus:border-[#5C2C4F] focus:bg-white"
               />
             </div>
 
+            {feedback && (
+              <div className="rounded-2xl border border-black/10 bg-[#F7F6F5] px-4 py-3 text-sm text-black/75">
+                {feedback}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="inline-flex min-h-[48px] w-fit items-center justify-center rounded-2xl bg-[#FF6B4A] px-5 text-sm font-semibold text-white transition hover:opacity-90"
+              disabled={loading}
+              className="inline-flex min-h-[48px] w-fit items-center justify-center rounded-2xl bg-[#FF6B4A] px-5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
             >
-              Envoyer
+              {loading ? "Envoi..." : "Envoyer"}
             </button>
           </form>
 
