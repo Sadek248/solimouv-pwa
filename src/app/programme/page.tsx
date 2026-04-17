@@ -1,36 +1,32 @@
 import ProgrammeCard from "@/components/sections/ProgrammeCard";
-import type { ProgrammeItem } from "@/data/programme";
+import { programmeData } from "@/data/programme";
 
-async function getProgramme(): Promise<ProgrammeItem[]> {
-    const res = await fetch("http://localhost:3000/api/programme", {
-        cache: "no-store",
-    });
+export default function ProgrammePage() {
+  return (
+    <main className="min-h-screen bg-[#F7F6F5] text-black">
+      <section className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 md:px-10 lg:px-16 lg:py-10">
+        <header className="grid gap-4">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#5C2C4F]">
+            Festival Solimouv’
+          </p>
 
-    if (!res.ok) {
-        throw new Error("Impossible de récupérer le programme.");
-    }
+          <h1 className="text-5xl font-black uppercase leading-[0.9] sm:text-6xl">
+            Programme
+          </h1>
 
-    return res.json();
-}
+          <p className="max-w-4xl text-lg leading-8 text-black/70">
+            Découvrez les ateliers, initiations et temps forts du festival
+            Solimouv’. Explorez les activités selon vos envies, votre niveau et
+            votre rythme.
+          </p>
+        </header>
 
-export default async function ProgrammePage() {
-    const programme = await getProgramme();
-
-    return (
-        <main className="mx-auto max-w-6xl px-4 py-12">
-            <section>
-                <h1 className="text-4xl font-bold text-gray-900">Programme</h1>
-
-                <p className="mt-4 max-w-3xl text-lg text-gray-700">
-                    Découvrez les ateliers, initiations et temps forts du festival Solimouv’.
-                </p>
-            </section>
-
-            <section className="mt-10 grid gap-6 md:grid-cols-2">
-                {programme.map((item) => (
-                    <ProgrammeCard key={item.id} item={item} />
-                ))}
-            </section>
-        </main>
-    );
+        <section className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {programmeData.map((item) => (
+            <ProgrammeCard key={item.id} item={item} />
+          ))}
+        </section>
+      </section>
+    </main>
+  );
 }

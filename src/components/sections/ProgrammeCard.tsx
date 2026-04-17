@@ -1,26 +1,59 @@
+import Link from "next/link";
 import type { ProgrammeItem } from "@/data/programme";
 
-type ProgrammeCardProps = {
-    item: ProgrammeItem;
+type Props = {
+  item: ProgrammeItem;
 };
 
-export default function ProgrammeCard({ item }: ProgrammeCardProps) {
-    return (
-        <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
-            <div className="flex items-center justify-between gap-4">
-                <p className="text-sm font-medium text-gray-500">{item.time}</p>
-                <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
-                    {item.audience}
-                </span>
-            </div>
+const accentClasses: Record<ProgrammeItem["accentColor"], string> = {
+  green: "border-t-[6px] border-t-[#B7E64C]",
+  purple: "border-t-[6px] border-t-[#5C2C4F]",
+  orange: "border-t-[6px] border-t-[#FF6B4A]",
+};
 
-            <h2 className="mt-4 text-2xl font-semibold text-gray-900">{item.title}</h2>
+const badgeClasses: Record<ProgrammeItem["accentColor"], string> = {
+  green: "bg-[#E5F4B9] text-black",
+  purple: "bg-[#EFE5EC] text-[#5C2C4F]",
+  orange: "bg-[#FDE7E1] text-[#5C2C4F]",
+};
 
-            <p className="mt-3 text-sm text-gray-500">
-                {item.location} · {item.partner}
-            </p>
+const buttonClasses: Record<ProgrammeItem["accentColor"], string> = {
+  green: "bg-[#5C2C4F] text-white hover:opacity-90",
+  purple: "bg-[#FF6B4A] text-white hover:opacity-90",
+  orange: "bg-[#FF6B4A] text-white hover:opacity-90",
+};
 
-            <p className="mt-4 leading-7 text-gray-700">{item.description}</p>
-        </article>
-    );
+export default function ProgrammeCard({ item }: Props) {
+  return (
+    <article
+      className={`grid gap-6 rounded-[32px] border border-black/10 bg-white p-6 shadow-[0_12px_40px_rgba(0,0,0,0.05)] ${accentClasses[item.accentColor]}`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-3xl font-bold text-[#FF6B4A]">{item.time}</p>
+
+        <span
+          className={`inline-flex rounded-full px-4 py-2 text-sm font-semibold ${badgeClasses[item.accentColor]}`}
+        >
+          {item.audience}
+        </span>
+      </div>
+
+      <div className="grid gap-4">
+        <h2 className="text-2xl font-black leading-tight">{item.title}</h2>
+
+        <p className="text-base text-[#6D5870]">{item.location}</p>
+
+        <p className="text-lg leading-9 text-black/80">{item.description}</p>
+      </div>
+
+      <div>
+        <Link
+          href={`/programme/${item.id}`}
+          className={`inline-flex min-h-[52px] items-center justify-center rounded-2xl px-5 text-base font-semibold transition ${buttonClasses[item.accentColor]}`}
+        >
+          Voir l’activité
+        </Link>
+      </div>
+    </article>
+  );
 }

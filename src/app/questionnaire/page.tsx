@@ -3,6 +3,14 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
+type Sport =
+  | "badminton"
+  | "natation"
+  | "football"
+  | "yoga"
+  | "course_a_pied"
+  | "gateball";
+
 type QuizOption = {
   id: string;
   label: string;
@@ -10,10 +18,45 @@ type QuizOption = {
 };
 
 type QuizQuestion = {
-  id: string;
+  id: keyof Answers;
   title: string;
   subtitle: string;
   options: QuizOption[];
+};
+
+type Answers = {
+  mobility?: string;
+  intensity?: string;
+  social_environment?: string;
+  time_factor?: string;
+  sensory_affinities?: string;
+  experience?: string;
+};
+
+type ScoreMap = Record<Sport, number>;
+
+type RecommendationResult = {
+  scores: ScoreMap;
+  top3: Array<{ sport: Sport; score: number }>;
+  profileLabel: string;
+};
+
+const SPORTS: Sport[] = [
+  "badminton",
+  "natation",
+  "football",
+  "yoga",
+  "course_a_pied",
+  "gateball",
+];
+
+const SPORT_LABELS: Record<Sport, string> = {
+  badminton: "Badminton",
+  natation: "Natation",
+  football: "Football",
+  yoga: "Yoga",
+  course_a_pied: "Course à pied",
+  gateball: "Gateball",
 };
 
 const QUESTIONS: QuizQuestion[] = [
@@ -148,7 +191,201 @@ const QUESTIONS: QuizQuestion[] = [
   },
 ];
 
-type Answers = Record<string, string>;
+const SCORING_RULES: Record<string, Partial<ScoreMap>> = {
+  // Q1 mobilité
+  walking: {
+    course_a_pied: 2,
+    football: 2,
+    badminton: 1,
+  },
+  wheelchair: {
+    gateball: 2,
+    badminton: 1,
+    yoga: 1,
+  },
+  mobility_aid: {
+    yoga: 2,
+    natation: 2,
+    gateball: 1,
+  },
+
+  // Q2 intensité
+  zen: {
+    yoga: 3,
+    natation: 1,
+  },
+  tonic: {
+    natation: 2,
+    badminton: 2,
+  },
+  explosive: {
+    football: 3,
+    course_a_pied: 2,
+  },
+  challenge: {
+    course_a_pied: 3,
+    badminton: 1,
+  },
+
+  // Q3 environnement social
+  solo: {
+    course_a_pied: 2,
+    yoga: 2,
+  },
+  duo_small_group: {
+    badminton: 2,
+    gateball: 2,
+  },
+  team: {
+    football: 3,
+  },
+
+  // Q4 temps
+  flash: {
+    badminton: 2,
+    yoga: 1,
+  },
+  classic: {
+    football: 2,
+    natation: 2,
+  },
+  immersive: {
+    course_a_pied: 2,
+    gateball: 2,
+  },
+
+  // Q5 affinités
+  water: {
+    natation: 4,
+  },
+  ball: {
+    football: 3,
+  },
+  speed: {
+    course_a_pied: 3,
+    badminton: 1,
+  },
+  precision: {
+    gateball: 3,
+    badminton: 2,
+  },
+
+  // Q6 expérience
+  curious: {
+    yoga: 2,
+    gateball: 2,
+  },
+  amateur: {
+    badminton: 2,
+    natation: 2,
+  },
+  addicted: {
+    football: 2,
+    course_a_pied: 2,
+  },
+};
+
+function createEmptyScores(): ScoreMap {
+  return {
+    badminton: 0,
+    natation: 0,
+    football: 0,
+    yoga: 0,
+    course_a_pied: 0,
+    gateball: 0,
+  };
+}
+
+function applyRule(scores: ScoreMap, rule?: Partial<ScoreMap>) {
+  if (!rule) return;
+
+  for (const sport of Object.keys(rule) as Sport[]) {
+    scores[sport] += rule[sport] ?? 0;
+  }
+}
+
+/**
+ * Compatibilité "soft" :
+ * on garde le sport, mais on réduit fortement son score si la mobilité
+ * semble peu compatible.
+ */
+function applyMobilityAdjustments(scores: ScoreMap, mobility?: string) {
+  if (!mobility) return;
+
+  if (mobility === "wheelchair") {
+    scores.course_a_pied -= 6;
+    scores.football -= 5;
+  }
+
+  if (mobility === "mobility_aid") {
+    scores.football -= 4;
+    scores.course_a_pied -= 3;
+  }
+
+  // on évite les scores négatifs
+  for (const sport of SPORTS) {
+    if (scores[sport] < 0) scores[sport] = 0;
+  }
+}
+
+function buildProfileLabel(top3: Array<{ sport: Sport; score: number }>) {
+  const first = top3[0]?.sport;
+  const second = top3[1]?.sport;
+
+  if (
+    first === "football" ||
+    first === "course_a_pied" ||
+    second === "football" ||
+    second === "course_a_pied"
+  ) {
+    return "Dynamique & collectif";
+  }
+
+  if (
+    first === "yoga" ||
+    first === "natation" ||
+    second === "yoga" ||
+    second === "natation"
+  ) {
+    return "Équilibre & bien-être";
+  }
+
+  if (
+    first === "gateball" ||
+    first === "badminton" ||
+    second === "gateball" ||
+    second === "badminton"
+  ) {
+    return "Précision & convivialité";
+  }
+
+  return "Profil sportif polyvalent";
+}
+
+function calculateRecommendations(answers: Answers): RecommendationResult {
+  const scores = createEmptyScores();
+
+  Object.values(answers).forEach((answerId) => {
+    if (!answerId) return;
+    applyRule(scores, SCORING_RULES[answerId]);
+  });
+
+  applyMobilityAdjustments(scores, answers.mobility);
+
+  const top3 = [...SPORTS]
+    .map((sport) => ({
+      sport,
+      score: scores[sport],
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
+  return {
+    scores,
+    top3,
+    profileLabel: buildProfileLabel(top3),
+  };
+}
 
 export default function QuestionnairePage() {
   const router = useRouter();
@@ -189,7 +426,7 @@ export default function QuestionnairePage() {
     try {
       setIsSubmitting(true);
 
-      const payload = {
+      const payload: Answers = {
         mobility: answers.mobility,
         intensity: answers.intensity,
         social_environment: answers.social_environment,
@@ -198,9 +435,15 @@ export default function QuestionnairePage() {
         experience: answers.experience,
       };
 
-      console.log("Réponses questionnaire :", payload);
+      const recommendation = calculateRecommendations(payload);
 
-      router.push("/dashboard");
+      console.log("Réponses questionnaire :", payload);
+      console.log("Résultat recommandation :", recommendation);
+
+      localStorage.setItem("quiz_answers", JSON.stringify(payload));
+      localStorage.setItem("quiz_recommendation", JSON.stringify(recommendation));
+
+      router.push("/");
     } catch (error) {
       console.error("Erreur lors de l'envoi du questionnaire :", error);
     } finally {

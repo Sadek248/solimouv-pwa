@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import HomeRecommendations from "@/components/sections/HomeRecommendations";
 const partners = [
   "Fondation PiLeje",
   "UFOLEP 75",
@@ -135,7 +135,7 @@ function HeroSection() {
     </section>
   );
 }
-
+<HomeRecommendations />
 function AboutSection() {
   return (
     <section className="px-5 py-8 sm:px-8 md:px-10 lg:px-16 lg:py-12">
