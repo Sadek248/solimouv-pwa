@@ -15,40 +15,44 @@ export default function ConnexionPage() {
   const [loading, setLoading] = useState(false);
   const [erreur, setErreur] = useState("");
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErreur("");
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setErreur("");
 
-    const emailTrim = email.trim().toLowerCase();
+  const emailTrim = email.trim().toLowerCase();
 
-    if (!emailTrim || !motDePasse) {
-      setErreur("Veuillez remplir tous les champs.");
+  if (!emailTrim || !motDePasse) {
+    setErreur("Veuillez remplir tous les champs.");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const supabase = createClient();
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: emailTrim,
+      password: motDePasse,
+    });
+
+    if (error) {
+      setErreur("Email ou mot de passe incorrect.");
       return;
     }
 
-    try {
-      setLoading(true);
+    document.cookie =
+      "solimouv_session=true; path=/; SameSite=Lax; max-age=86400";
 
-      const supabase = createClient();
-
-      const { error } = await supabase.auth.signInWithPassword({
-        email: emailTrim,
-        password: motDePasse,
-      });
-
-      if (error) {
-        setErreur("Email ou mot de passe incorrect.");
-        return;
-      }
-
-      router.push("/questionnaire");
-    } catch (error) {
-      console.error("Erreur connexion :", error);
-      setErreur("Une erreur est survenue pendant la connexion.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    router.push("/accueil");
+    router.refresh();
+  } catch (error) {
+    console.error("Erreur connexion :", error);
+    setErreur("Une erreur est survenue pendant la connexion.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-[#F7F6F5] text-black">
